@@ -9,7 +9,7 @@
 		"message": "導出到 "
 	},
 	"configPageTitle": {
-		"message": "YAAW2 選項設定頁面"
+		"message": "YAAW2 設定"
 	},
 	"contextmenuStr": {
 		"message": "右鍵選單"
@@ -27,7 +27,7 @@
 		"message": "自動下載前詢問詳細設置(無法附加 Cookies 信息)"
 	},
 	"captureFinalUrlDes": {
-		"message": "攔截最終下載地址 (排除多重重新導向導致下載不正常的情況)"
+		"message": "攔截最終下載地址 (避免多重重新導向導致下載不正常的情況)"
 	},
 	"whiteListStr": {
 		"message": "網站白名單"
@@ -36,10 +36,10 @@
 		"message": "網站黑名單"
 	},
 	"addToWhiteListStr": {
-		"message": "當前網站->白名單"
+		"message": "當前網站 -> 白名單"
 	},
 	"addToBlackListStr": {
-		"message": "當前網站->黑名單"
+		"message": "當前網站 -> 黑名單"
 	},
 	"removeFromWhiteListStr": {
 		"message": "移出白名單"

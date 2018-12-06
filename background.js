@@ -1,57 +1,13 @@
-const defaultRPC = '[{"name":"ARIA2 RPC","url":"http://localhost:6800/jsonrpc"}]'
-const HttpSendRead = info => {
-	Promise.prototype.done = Promise.prototype.then
-	Promise.prototype.fail = Promise.prototype.catch
-	return new Promise((resolve, reject) => {
-		const http = new XMLHttpRequest()
-		let contentType = 'application/x-www-form-urlencoded; charset=UTF-8'
-		let timeout = 3000
-		if (info.contentType != null) {
-			contentType = info.contentType
-		}
-		if (info.timeout != null) {
-			timeout = info.timeout
-		}
-		const timeId = setTimeout(httpclose, timeout)
-		function httpclose() {
-			http.abort()
-		}
-		http.onreadystatechange = () => {
-			if (http.readyState == 4) {
-				if ((http.status == 200 && http.status < 300) || http.status == 304) {
-					clearTimeout(timeId)
-					if (info.dataType == 'json') {
-						resolve(JSON.parse(http.responseText), http.status, http)
-					} else if (info.dataType == 'SCRIPT') {
-						// eval(http.responseText);
-						resolve(http.responseText, http.status, http)
-					}
-				} else {
-					clearTimeout(timeId)
-					reject(http, http.statusText, http.status)
-				}
-			}
-		}
-		http.open(info.type, info.url, true)
-		http.setRequestHeader('Content-type', contentType)
-		for (h in info.headers) {
-			if (info.headers[h]) {
-				http.setRequestHeader(h, info.headers[h])
-			}
-		}
-		if (info.type == 'POST') {
-			http.send(info.data)
-		} else {
-			http.send()
-		}
-	})
+const defaultRPC = JSON.stringify([{ name: 'ARIA2 RPC', url: 'http://localhost:6800/jsonrpc' }])
+function timeout(ms) {
+	return new Promise((res, rej) => setTimeout(rej, ms))
 }
-
-//弹出chrome通知
+function generateId() {
+	return new Date().getTime().toString()
+}
 function showNotification(id, opt) {
-	const notification = chrome.notifications.create(id, opt, notifyId => notifyId)
+	return chrome.notifications.create(id, opt, notifyId => notifyId)
 }
-//解析RPC地址
 function parse_url(url) {
 	const auth_str = request_auth(url)
 	let auth = null
@@ -112,23 +68,20 @@ function aria2Send(link, rpcUrl, downloadItem) {
 					}
 				]
 			}
-			const result = parse_url(rpcUrl)
-			const auth = result[1]
+			const [url, auth] = parse_url(rpcUrl)
 			if (auth && auth.indexOf('token:') == 0) {
 				rpc_data.params.unshift(auth)
 			}
-
-			const parameter = {
-				url: result[0],
-				dataType: 'json',
-				type: 'POST',
-				data: JSON.stringify(rpc_data),
-				headers: {
-					Authorization: auth
-				}
-			}
-			HttpSendRead(parameter)
-				.done((json, textStatus, jqXHR) => {
+			const request = xf
+				.post(url, {
+					json: rpc_data,
+					headers: {
+						Authorization: auth
+					}
+				})
+				.json()
+			Promise.race([request, timeout(3000)])
+				.then(() => {
 					const title = chrome.i18n.getMessage('exportSucceedStr')
 					const des = chrome.i18n.getMessage('exportSucceedDes')
 					const opt = {
@@ -138,21 +91,28 @@ function aria2Send(link, rpcUrl, downloadItem) {
 						iconUrl: 'images/logo64.png',
 						isClickable: true
 					}
-					const id = new Date().getTime().toString()
+					const id = generateId()
 					showNotification(id, opt)
 				})
-				.fail((jqXHR, textStatus, errorThrown) => {
-					console.log(jqXHR)
+				.catch(async err => {
+					let msg
+					if (typeof err === 'undefined') {
+						msg = 'Timeout'
+					} else if (err.response) {
+						const obj = await err.response.json()
+						msg = obj.error.message
+					} else {
+					}
 					const title = chrome.i18n.getMessage('exportFailedStr')
 					const des = chrome.i18n.getMessage('exportFailedDes')
 					const opt = {
 						type: 'basic',
 						title,
-						message: des,
+						message: des + ' -- ' + msg,
 						iconUrl: 'images/logo64.png',
 						requireInteraction: false
 					}
-					const id = new Date().getTime().toString()
+					const id = generateId()
 					showNotification(id, opt)
 				})
 		}
@@ -197,11 +157,6 @@ function isCaptureFinalUrl() {
 	const finalUrl = localStorage.getItem('finalUrl')
 	return finalUrl == 'true'
 }
-
-//chrome.downloads.onChanged.addListener(function (downloadItem){
-//	console.log("onChanged");
-//    console.log(downloadItem);
-//});
 
 chrome.downloads.onDeterminingFilename.addListener((downloadItem, suggestion) => {
 	const integration = localStorage.getItem('integration')
@@ -267,44 +222,19 @@ function addContextMenu(id, title) {
 	})
 }
 
-function createOptionMenu() {
-	const strAddtoWhiteList = chrome.i18n.getMessage('addToWhiteListStr')
-	chrome.contextMenus.create({
-		type: 'normal',
-		id: 'updateWhiteSite',
-		title: strAddtoWhiteList,
-		contexts: ['browser_action']
-	})
-	const strAddtoBlackList = chrome.i18n.getMessage('addToBlackListStr')
-	chrome.contextMenus.create({
-		type: 'normal',
-		id: 'updateBlackSite',
-		title: strAddtoBlackList,
-		contexts: ['browser_action']
-	})
-}
-
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 	const strExport = chrome.i18n.getMessage('contextmenuTitle')
 	if (changeInfo.status === 'loading') {
 		chrome.contextMenus.removeAll()
-		createOptionMenu()
-		updateOptionMenu(tab)
 		const contextMenus = localStorage.getItem('contextMenus')
 		if (contextMenus == 'true' || contextMenus == null) {
 			const rpc_list = JSON.parse(localStorage.getItem('rpc_list') || defaultRPC)
-			for (const i in rpc_list) {
-				addContextMenu(rpc_list[i]['url'], strExport + rpc_list[i]['name'])
+			for (const rpc of rpc_list) {
+				addContextMenu(rpc.name + ':' + rpc.url, strExport + rpc.name)
 			}
 			localStorage.setItem('contextMenus', true)
 		}
 	}
-})
-
-chrome.tabs.onActivated.addListener(activeInfo => {
-	chrome.tabs.get(activeInfo.tabId, tab => {
-		updateOptionMenu(tab)
-	})
 })
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -317,113 +247,89 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 		filename: ''
 	}
 
-	if (info.menuItemId == 'updateBlackSite') {
-		updateBlackSite(tab)
-		updateOptionMenu(tab)
-	} else if (info.menuItemId == 'updateWhiteSite') {
-		updateWhiteSite(tab)
-		updateOptionMenu(tab)
-	} else {
-		aria2Send(uri, info.menuItemId, downloadItem)
-	}
+	aria2Send(uri, info.menuItemId, downloadItem)
 })
 
-function updateOptionMenu(tab) {
-	const black_site = JSON.parse(localStorage.getItem('black_site'))
-	const black_site_set = new Set(black_site)
-	const white_site = JSON.parse(localStorage.getItem('white_site'))
-	const white_site_set = new Set(white_site)
-	if (tab == null || tab.url == null) {
-		console.warn('Could not get active tab url, update option menu failed.')
-	}
-	if (!tab.active || tab.url.startsWith('chrome')) return
-	const url = new URL(tab.url)
-	if (black_site_set.has(url.hostname)) {
-		var updateBlackSiteStr = chrome.i18n.getMessage('removeFromBlackListStr')
-		chrome.contextMenus.update(
-			'updateBlackSite',
-			{
-				title: updateBlackSiteStr
-			},
-			() => {}
-		)
-	} else {
-		var updateBlackSiteStr = chrome.i18n.getMessage('addToBlackListStr')
-		chrome.contextMenus.update(
-			'updateBlackSite',
-			{
-				title: updateBlackSiteStr
-			},
-			() => {}
-		)
-	}
-	if (white_site_set.has(url.hostname)) {
-		var updateWhiteSiteStr = chrome.i18n.getMessage('removeFromWhiteListStr')
-		chrome.contextMenus.update(
-			'updateWhiteSite',
-			{
-				title: updateWhiteSiteStr
-			},
-			() => {}
-		)
-	} else {
-		var updateWhiteSiteStr = chrome.i18n.getMessage('addToWhiteListStr')
-		chrome.contextMenus.update(
-			'updateWhiteSite',
-			{
-				title: updateWhiteSiteStr
-			},
-			() => {}
-		)
-	}
-}
-function updateWhiteSite(tab) {
-	if (tab == null || tab.url == null) {
-		console.warn('Could not get active tab url, update option menu failed.')
-	}
-	if (!tab.active || tab.url.startsWith('chrome')) return
-	const white_site = JSON.parse(localStorage.getItem('white_site'))
-	const white_site_set = new Set(white_site)
-	const url = new URL(tab.url)
-	if (white_site_set.has(url.hostname)) {
-		white_site_set.delete(url.hostname)
-	} else {
-		white_site_set.add(url.hostname)
-	}
-	localStorage.setItem('white_site', JSON.stringify(Array.from(white_site_set)))
-}
-function updateBlackSite(tab) {
-	if (tab == null || tab.url == null) {
-		console.warn('Could not get active tab url, update option menu failed.')
-	}
-	if (!tab.active || tab.url.startsWith('chrome')) return
-	const black_site = JSON.parse(localStorage.getItem('black_site'))
-	const black_site_set = new Set(black_site)
-	const url = new URL(tab.url)
-	if (black_site_set.has(url.hostname)) {
-		black_site_set.delete(url.hostname)
-	} else {
-		black_site_set.add(url.hostname)
-	}
-	localStorage.setItem('black_site', JSON.stringify(Array.from(black_site_set)))
-}
+// function updateOptionMenu(tab) {
+// 	const black_site = JSON.parse(localStorage.getItem('black_site'))
+// 	const black_site_set = new Set(black_site)
+// 	const white_site = JSON.parse(localStorage.getItem('white_site'))
+// 	const white_site_set = new Set(white_site)
+// 	if (tab == null || tab.url == null) {
+// 		console.warn('Could not get active tab url, update option menu failed.')
+// 	}
+// 	if (!tab.active || tab.url.startsWith('chrome')) return
+// 	const url = new URL(tab.url)
+// 	if (black_site_set.has(url.hostname)) {
+// 		var updateBlackSiteStr = chrome.i18n.getMessage('removeFromBlackListStr')
+// 		chrome.contextMenus.update(
+// 			'updateBlackSite',
+// 			{
+// 				title: updateBlackSiteStr
+// 			},
+// 			() => {}
+// 		)
+// 	} else {
+// 		var updateBlackSiteStr = chrome.i18n.getMessage('addToBlackListStr')
+// 		chrome.contextMenus.update(
+// 			'updateBlackSite',
+// 			{
+// 				title: updateBlackSiteStr
+// 			},
+// 			() => {}
+// 		)
+// 	}
+// 	if (white_site_set.has(url.hostname)) {
+// 		var updateWhiteSiteStr = chrome.i18n.getMessage('removeFromWhiteListStr')
+// 		chrome.contextMenus.update(
+// 			'updateWhiteSite',
+// 			{
+// 				title: updateWhiteSiteStr
+// 			},
+// 			() => {}
+// 		)
+// 	} else {
+// 		var updateWhiteSiteStr = chrome.i18n.getMessage('addToWhiteListStr')
+// 		chrome.contextMenus.update(
+// 			'updateWhiteSite',
+// 			{
+// 				title: updateWhiteSiteStr
+// 			},
+// 			() => {}
+// 		)
+// 	}
+// }
+// function updateWhiteSite(tab) {
+// 	if (tab == null || tab.url == null) {
+// 		console.warn('Could not get active tab url, update option menu failed.')
+// 	}
+// 	if (!tab.active || tab.url.startsWith('chrome')) return
+// 	const white_site = JSON.parse(localStorage.getItem('white_site'))
+// 	const white_site_set = new Set(white_site)
+// 	const url = new URL(tab.url)
+// 	if (white_site_set.has(url.hostname)) {
+// 		white_site_set.delete(url.hostname)
+// 	} else {
+// 		white_site_set.add(url.hostname)
+// 	}
+// 	localStorage.setItem('white_site', JSON.stringify(Array.from(white_site_set)))
+// }
+// function updateBlackSite(tab) {
+// 	if (tab == null || tab.url == null) {
+// 		console.warn('Could not get active tab url, update option menu failed.')
+// 	}
+// 	if (!tab.active || tab.url.startsWith('chrome')) return
+// 	const black_site = JSON.parse(localStorage.getItem('black_site'))
+// 	const black_site_set = new Set(black_site)
+// 	const url = new URL(tab.url)
+// 	if (black_site_set.has(url.hostname)) {
+// 		black_site_set.delete(url.hostname)
+// 	} else {
+// 		black_site_set.add(url.hostname)
+// 	}
+// 	localStorage.setItem('black_site', JSON.stringify(Array.from(black_site_set)))
+// }
 chrome.notifications.onClicked.addListener(id => {
 	launchUI()
 	chrome.notifications.clear(id, () => {})
 })
-
-//软件版本更新提示
-const manifest = chrome.runtime.getManifest()
-const previousVersion = localStorage.getItem('version')
-if (previousVersion == '' || previousVersion != manifest.version) {
-	const opt = {
-		type: 'basic',
-		title: '更新',
-		message: `YAAW2版本更新到${manifest.version}啦\n更新内容：AriaNG升级到1.0.0。`,
-		iconUrl: 'images/logo64.png',
-		requireInteraction: true
-	}
-	const id = new Date().getTime().toString()
-	showNotification(id, opt)
-	localStorage.setItem('version', manifest.version)
-}
