@@ -1,0 +1,65 @@
+{
+	"appName": {
+		"message": "YAAW for Chrome"
+	},
+	"description": {
+		"message": "Aria2 Web UI 支援手動新增和自動攔截下載到Aria2。 (由 YAAW2 for Chrome 修改)"
+	},
+	"contextmenuTitle": {
+		"message": "導出到 "
+	},
+	"configPageTitle": {
+		"message": "YAAW2 選項設定頁面"
+	},
+	"contextmenuStr": {
+		"message": "右鍵選單"
+	},
+	"contextmenuDes": {
+		"message": "啟用右鍵選單攔截項"
+	},
+	"downloadCaptureStr": {
+		"message": "下載攔截"
+	},
+	"downloadCaptureDes": {
+		"message": "自動攔截下載任務到Aria2c，當檔案大小 ≥"
+	},
+	"askBeforeDownloadDes": {
+		"message": "自動下載前詢問詳細設置(無法附加 Cookies 信息)"
+	},
+	"captureFinalUrlDes": {
+		"message": "攔截最終下載地址 (排除多重重新導向導致下載不正常的情況)"
+	},
+	"whiteListStr": {
+		"message": "網站白名單"
+	},
+	"BlackListStr": {
+		"message": "網站黑名單"
+	},
+	"addToWhiteListStr": {
+		"message": "當前網站->白名單"
+	},
+	"addToBlackListStr": {
+		"message": "當前網站->黑名單"
+	},
+	"removeFromWhiteListStr": {
+		"message": "移出白名單"
+	},
+	"removeFromBlackListStr": {
+		"message": "移出黑名單"
+	},
+	"exportFailedStr": {
+		"message": "導出失敗"
+	},
+	"exportFailedDes": {
+		"message": "\n無法連接到Aria2,導出下載任務失敗!"
+	},
+	"exportSucceedStr": {
+		"message": "導出成功"
+	},
+	"exportSucceedDes": {
+		"message": "\nAria2已經開始任務下載。"
+	},
+	"placeHolderTipStr": {
+		"message": "每行一個網址"
+	}
+}
