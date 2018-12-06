@@ -9,7 +9,7 @@
 		"message": "導出到 "
 	},
 	"configPageTitle": {
-		"message": "YAAW2 設定"
+		"message": "設定"
 	},
 	"contextmenuStr": {
 		"message": "右鍵選單"
@@ -32,7 +32,7 @@
 	"whiteListStr": {
 		"message": "網站白名單"
 	},
-	"BlackListStr": {
+	"blackListStr": {
 		"message": "網站黑名單"
 	},
 	"addToWhiteListStr": {

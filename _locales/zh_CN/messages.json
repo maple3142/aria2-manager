@@ -1,6 +1,6 @@
 {
    "appName": {
-      "message": "YAAW2 for Chrome"
+      "message": "YAAW for Chrome"
    },
    "description": {
       "message": "Aria2 Web UI 支援手动新增和自动拦截下载到Aria2。 (由 YAAW2 for Chrome 修改)"
@@ -9,7 +9,7 @@
       "message":"导出到 "
    },
    "configPageTitle":{
-      "message":"YAAW2 选项配置页面"
+      "message":"配置"
    },
    "contextmenuStr":{
       "message":"右键菜单"
@@ -32,7 +32,7 @@
    "whiteListStr":{
       "message":"网站白名单"
    },
-   "BlackListStr":{
+   "blackListStr":{
       "message":"网站黑名单"
    },
    "addToWhiteListStr":{

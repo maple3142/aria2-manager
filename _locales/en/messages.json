@@ -1,6 +1,6 @@
 {
    "appName": {
-      "message": "YAAW2 for Chrome"
+      "message": "YAAW for Chrome"
    },
    "description": {
       "message": "Aria2 Web UI in pure HTML/CSS/Javascirpt for chrome.(Modified from YAAW2 for Chrome)"
@@ -9,7 +9,7 @@
       "message":"Export to "
    },
    "configPageTitle":{
-      "message":"YAAW2 Option Page"
+      "message":"Settings"
    },
    "contextmenuStr":{
       "message":"Context Menu"
@@ -32,7 +32,7 @@
    "whiteListStr":{
       "message":"Website White-list"
    },
-   "BlackListStr":{
+   "blackListStr":{
       "message":"Website Black-list"
    },
       "addToWhiteListStr":{

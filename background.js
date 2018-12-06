@@ -230,7 +230,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 		if (contextMenus == 'true' || contextMenus == null) {
 			const rpc_list = JSON.parse(localStorage.getItem('rpc_list') || defaultRPC)
 			for (const rpc of rpc_list) {
-				addContextMenu(rpc.name + ':' + rpc.url, strExport + rpc.name)
+				addContextMenu(rpc.url, strExport + rpc.name)
 			}
 			localStorage.setItem('contextMenus', true)
 		}
