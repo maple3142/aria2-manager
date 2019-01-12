@@ -1,5 +1,24 @@
 const defaultRPC = JSON.stringify([{ name: 'ARIA2 RPC', url: 'http://localhost:6800/jsonrpc' }])
 const dedupe = arr => Array.from(new Set(arr))
+Vue.component('rpc', {
+	template: '#rpc',
+	props: ['value'],
+	data() {
+		return {
+			rpc: Object.assign({}, this.value)
+		}
+	},
+	watch: {
+		rpc: {
+			deep: true,
+			handler(val) {
+				if (!val || (val.name && val.url)) {
+					this.$emit('input', val)
+				}
+			}
+		}
+	}
+})
 window.app = new Vue({
 	el: '#app',
 	data: {
@@ -23,7 +42,7 @@ window.app = new Vue({
 			for (const k of ['contextMenus', 'integration', 'finalUrl', 'askBeforeDownload', 'fileSize']) {
 				localStorage.setItem(k, JSON.stringify(this[k]))
 			}
-			this.rpc_list = this.rpc_list.filter(rpc => rpc.name && rpc.url)
+			this.rpc_list = this.rpc_list.filter(rpc => rpc && rpc.name && rpc.url)
 			localStorage.setItem('rpc_list', JSON.stringify(this.rpc_list))
 			this.black_site = dedupe(this.black_site.split('\n').filter(x => x))
 			localStorage.setItem('black_site', JSON.stringify(this.black_site))
@@ -39,6 +58,10 @@ window.app = new Vue({
 		},
 		i18n(id) {
 			return chrome.i18n.getMessage(id)
+		},
+		updaterpc(val, idx) {
+			this.rpc_list[idx] = val
+			this.save()
 		}
 	}
 })

@@ -11,6 +11,24 @@
 		<link href="css/tocas.css" rel="stylesheet" />
 	</head>
 	<body>
+		<script type="text/x-template" id="rpc">
+			<div class="inline fields">
+				<div class="four wide field">
+					<input type="text" class="input-small" placeholder="RPC Name" v-model="rpc.name" />
+				</div>
+				<div class="ten wide field">
+					<input
+						type="text"
+						class="input-xlarge rpc-path"
+						placeholder="RPC Path"
+						v-model="rpc.url"
+					/>
+				</div>
+				<div class="two wide field" style="margin-bottom: auto;">
+					<button type="button" class="ts button negative" @click="rpc=null">-</button>
+				</div>
+			</div>
+		</script>
 		<div id="app">
 			<div class="ts container">
 				<h1 class="ts header">{{ i18n('configPageTitle') }}</h1>
@@ -19,7 +37,7 @@
 						<legend>{{ i18n('contextmenuStr') }}</legend>
 						<div class="field">
 							<div class="ts checkbox">
-								<input type="checkbox" v-model="contextMenus" id="contextMenus" />
+								<input type="checkbox" v-model="contextMenus" @change="save" id="contextMenus" />
 								<label for="contextMenus">{{ i18n('contextmenuDes') }}</label>
 							</div>
 						</div>
@@ -28,63 +46,65 @@
 						<legend>{{ i18n('downloadCaptureStr') }}</legend>
 						<div class="field">
 							<div class="ts checkbox">
-								<input type="checkbox" v-model="integration" id="integration" />
+								<input type="checkbox" v-model="integration" @change="save" id="integration" />
 
 								<label for="integration">{{ i18n('downloadCaptureDes') }}</label>
 							</div>
 							<div class="ts right labeled mini input">
-								<input type="number" placeholder="File Size" v-model.number="fileSize" />
+								<input type="number" placeholder="File Size" v-model.number="fileSize" @change="save" />
 								<ts class="label">MB</ts>
 							</div>
 						</div>
 						<div class="field">
 							<div class="ts checkbox">
-								<input type="checkbox" v-model="askBeforeDownload" id="askBeforeDownload" />
+								<input
+									type="checkbox"
+									v-model="askBeforeDownload"
+									@change="save"
+									id="askBeforeDownload"
+								/>
 								<label for="askBeforeDownload">{{ i18n('askBeforeDownloadDes') }}</label>
 							</div>
 						</div>
 						<div class="field">
 							<div class="ts checkbox">
-								<input type="checkbox" v-model="finalUrl" id="finalUrl" />
+								<input type="checkbox" v-model="finalUrl" @change="save" id="finalUrl" />
 								<label for="finalUrl">{{ i18n('captureFinalUrlDes') }}</label>
 							</div>
 						</div>
 					</fieldset>
 					<fieldset>
 						<legend>JSON-RPC</legend>
-						<div class="field"><button type="button" class="ts button" @click="addRpc">Add RPC</button></div>
-						<div class="inline fields" v-for="(rpc,idx) in rpc_list">
-							<div class="four wide field">
-								<input type="text" class="input-small" placeholder="RPC Name" v-model="rpc.name" />
-							</div>
-							<div class="twelve wide field">
-								<input
-									type="text"
-									class="input-xlarge rpc-path"
-									placeholder="RPC Path"
-									v-model="rpc.url"
-								/>
-							</div>
+						<div class="field">
+							<button type="button" class="ts button" @click="addRpc">Add RPC</button>
 						</div>
+						<rpc v-for="(rpc,idx) in rpc_list" :value="rpc" @input="updaterpc($event,idx)"/>
 					</fieldset>
 					<fieldset>
 						<legend>{{ i18n('whiteListStr') }}</legend>
 						<div class="field">
-							<textarea rows="6" :placeholder="i18n('placeHolderTipStr')" v-model="white_site"></textarea>
+							<textarea
+								rows="6"
+								:placeholder="i18n('placeHolderTipStr')"
+								v-model="white_site"
+								@change="save"
+							></textarea>
 						</div>
 					</fieldset>
 					<fieldset>
 						<legend>{{ i18n('blackListStr') }}</legend>
 						<div class="field">
-							<textarea rows="6" :placeholder="i18n('placeHolderTipStr')" v-model="black_site"></textarea>
+							<textarea
+								rows="6"
+								:placeholder="i18n('placeHolderTipStr')"
+								v-model="black_site"
+								@change="save"
+							></textarea>
 						</div>
 					</fieldset>
 				</div>
 			</div>
 			<div class="ts centered grid">
-				<div class="two center aligned column">
-					<button type="button" class="ts button positive" @click="save">Save</button>
-				</div>
 				<div class="two center aligned column">
 					<button type="button" class="ts button negative" @click="reset">Reset</button>
 				</div>
