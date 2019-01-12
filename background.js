@@ -131,26 +131,12 @@ function isCapture(downloadItem) {
 		return false
 	}
 
-	const parse_url = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/
-	const result = parse_url.exec(url)[3]
-
-	for (var i = 0; i < white_site.length; i++) {
-		if (matchRule(result, white_site[i])) {
-			return true
-		}
-	}
-
-	for (var i = 0; i < black_site.length; i++) {
-		if (matchRule(result, black_site[i])) {
-			return false
-		}
-	}
-
-	if (downloadItem.fileSize >= fileSize * 1024 * 1024) {
-		return true
-	} else {
-		return false
-	}
+	const domain = new URL(url).hostname
+	const inWhiteList = white_site.some(rule => domain.endsWith(rule))
+	const inBlackList = black_site.some(rule => domain.endsWith(rule))
+	const okWithList = inWhiteList || !inBlackList
+	const okWithFileSize = downloadItem.fileSize >= fileSize * 1024 * 1024
+	return okWithFileSize && okWithList
 }
 
 function isCaptureFinalUrl() {
@@ -250,85 +236,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 	aria2Send(uri, info.menuItemId, downloadItem)
 })
 
-// function updateOptionMenu(tab) {
-// 	const black_site = JSON.parse(localStorage.getItem('black_site'))
-// 	const black_site_set = new Set(black_site)
-// 	const white_site = JSON.parse(localStorage.getItem('white_site'))
-// 	const white_site_set = new Set(white_site)
-// 	if (tab == null || tab.url == null) {
-// 		console.warn('Could not get active tab url, update option menu failed.')
-// 	}
-// 	if (!tab.active || tab.url.startsWith('chrome')) return
-// 	const url = new URL(tab.url)
-// 	if (black_site_set.has(url.hostname)) {
-// 		var updateBlackSiteStr = chrome.i18n.getMessage('removeFromBlackListStr')
-// 		chrome.contextMenus.update(
-// 			'updateBlackSite',
-// 			{
-// 				title: updateBlackSiteStr
-// 			},
-// 			() => {}
-// 		)
-// 	} else {
-// 		var updateBlackSiteStr = chrome.i18n.getMessage('addToBlackListStr')
-// 		chrome.contextMenus.update(
-// 			'updateBlackSite',
-// 			{
-// 				title: updateBlackSiteStr
-// 			},
-// 			() => {}
-// 		)
-// 	}
-// 	if (white_site_set.has(url.hostname)) {
-// 		var updateWhiteSiteStr = chrome.i18n.getMessage('removeFromWhiteListStr')
-// 		chrome.contextMenus.update(
-// 			'updateWhiteSite',
-// 			{
-// 				title: updateWhiteSiteStr
-// 			},
-// 			() => {}
-// 		)
-// 	} else {
-// 		var updateWhiteSiteStr = chrome.i18n.getMessage('addToWhiteListStr')
-// 		chrome.contextMenus.update(
-// 			'updateWhiteSite',
-// 			{
-// 				title: updateWhiteSiteStr
-// 			},
-// 			() => {}
-// 		)
-// 	}
-// }
-// function updateWhiteSite(tab) {
-// 	if (tab == null || tab.url == null) {
-// 		console.warn('Could not get active tab url, update option menu failed.')
-// 	}
-// 	if (!tab.active || tab.url.startsWith('chrome')) return
-// 	const white_site = JSON.parse(localStorage.getItem('white_site'))
-// 	const white_site_set = new Set(white_site)
-// 	const url = new URL(tab.url)
-// 	if (white_site_set.has(url.hostname)) {
-// 		white_site_set.delete(url.hostname)
-// 	} else {
-// 		white_site_set.add(url.hostname)
-// 	}
-// 	localStorage.setItem('white_site', JSON.stringify(Array.from(white_site_set)))
-// }
-// function updateBlackSite(tab) {
-// 	if (tab == null || tab.url == null) {
-// 		console.warn('Could not get active tab url, update option menu failed.')
-// 	}
-// 	if (!tab.active || tab.url.startsWith('chrome')) return
-// 	const black_site = JSON.parse(localStorage.getItem('black_site'))
-// 	const black_site_set = new Set(black_site)
-// 	const url = new URL(tab.url)
-// 	if (black_site_set.has(url.hostname)) {
-// 		black_site_set.delete(url.hostname)
-// 	} else {
-// 		black_site_set.add(url.hostname)
-// 	}
-// 	localStorage.setItem('black_site', JSON.stringify(Array.from(black_site_set)))
-// }
 chrome.notifications.onClicked.addListener(id => {
 	launchUI()
 	chrome.notifications.clear(id, () => {})
