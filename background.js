@@ -1,4 +1,13 @@
-const defaultRPC = JSON.stringify([{ name: 'ARIA2 RPC', url: 'http://localhost:6800/jsonrpc' }])
+const storage = {
+	get(key, defaultval) {
+		const val = localStorage.getItem(key)
+		return val === null ? defaultval : JSON.parse(val)
+	},
+	set(key, val) {
+		localStorage.setItem(key, JSON.stringify(val))
+	}
+}
+const defaultRPC = [{ name: 'ARIA2 RPC', url: 'http://localhost:6800/jsonrpc' }]
 function timeout(ms) {
 	return new Promise((res, rej) => setTimeout(rej, ms))
 }
@@ -12,7 +21,7 @@ function parse_url(url) {
 	const auth_str = request_auth(url)
 	let auth = null
 	if (auth_str) {
-		if (auth_str.indexOf('token:') == 0) {
+		if (auth_str.startsWith('token:')) {
 			auth = auth_str
 		} else {
 			auth = `Basic ${btoa(auth_str)}`
@@ -69,7 +78,7 @@ function aria2Send(link, rpcUrl, downloadItem) {
 				]
 			}
 			const [url, auth] = parse_url(rpcUrl)
-			if (auth && auth.indexOf('token:') == 0) {
+			if (auth && auth.startsWith('token:')) {
 				rpc_data.params.unshift(auth)
 			}
 			const request = xf
@@ -122,12 +131,12 @@ function matchRule(str, rule) {
 	return new RegExp(`^${rule.split('*').join('.*')}$`).test(str)
 }
 function isCapture(downloadItem) {
-	const fileSize = localStorage.getItem('fileSize')
-	const white_site = JSON.parse(localStorage.getItem('white_site'))
-	const black_site = JSON.parse(localStorage.getItem('black_site'))
+	const fileSize = storage.get('fileSize')
+	const white_site = storage.get('white_site', [])
+	const black_site = storage.get('black_site', [])
 	const url = downloadItem.referrer || downloadItem.url
 
-	if (downloadItem.error || downloadItem.state != 'in_progress' || url.startsWith('http') == false) {
+	if (downloadItem.error || downloadItem.state != 'in_progress' || !url.startsWith('http')) {
 		return false
 	}
 
@@ -140,25 +149,24 @@ function isCapture(downloadItem) {
 }
 
 function isCaptureFinalUrl() {
-	const finalUrl = localStorage.getItem('finalUrl')
-	return finalUrl == 'true'
+	return storage.get('finalUrl')
 }
 
 chrome.downloads.onDeterminingFilename.addListener((downloadItem, suggestion) => {
-	const integration = localStorage.getItem('integration')
-	const askBeforeDownload = localStorage.getItem('askBeforeDownload')
+	const integrationEnabled = storage.get('integration')
+	const askBeforeDownload = storage.get('askBeforeDownload')
 	const isStartedByMySelf = downloadItem.byExtensionName === 'YAAW for Chrome'
 
-	if (isStartedByMySelf || (integration == 'true' && isCapture(downloadItem))) {
+	if (isStartedByMySelf || (integrationEnabled && isCapture(downloadItem))) {
 		chrome.downloads.cancel(downloadItem.id)
-		if (askBeforeDownload == 'true') {
+		if (askBeforeDownload) {
 			if (isCaptureFinalUrl()) {
 				launchUI(downloadItem.finalUrl, downloadItem.referrer)
 			} else {
 				launchUI(downloadItem.url, downloadItem.referrer)
 			}
 		} else {
-			const rpc_list = JSON.parse(localStorage.getItem('rpc_list') || defaultRPC)
+			const rpc_list = storage.get('rpc_list', defaultRPC)
 			if (isCaptureFinalUrl()) {
 				aria2Send(downloadItem.finalUrl, rpc_list[0]['url'], downloadItem)
 			} else {
@@ -209,13 +217,12 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 	const strExport = chrome.i18n.getMessage('contextmenuTitle')
 	if (changeInfo.status === 'loading') {
 		chrome.contextMenus.removeAll()
-		const contextMenus = localStorage.getItem('contextMenus')
-		if (contextMenus == 'true' || contextMenus == null) {
-			const rpc_list = JSON.parse(localStorage.getItem('rpc_list') || defaultRPC)
+		const contextMenusEnabled = storage.get('contextMenus')
+		if (contextMenusEnabled) {
+			const rpc_list = storage.get('rpc_list', defaultRPC)
 			for (const rpc of rpc_list) {
 				addContextMenu(rpc.url, strExport + rpc.name)
 			}
-			localStorage.setItem('contextMenus', true)
 		}
 	}
 })
