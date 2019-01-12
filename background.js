@@ -147,12 +147,9 @@ function isCaptureFinalUrl() {
 chrome.downloads.onDeterminingFilename.addListener((downloadItem, suggestion) => {
 	const integration = localStorage.getItem('integration')
 	const askBeforeDownload = localStorage.getItem('askBeforeDownload')
+	const isStartedByMySelf = downloadItem.byExtensionName === 'YAAW for Chrome'
 
-	if (downloadItem.byExtensionId == 'gbdinbbamaniaidalikeiclecfbpgphh') {
-		//workaround for filename ignorant assigned by extension "音视频下载"
-		return true
-	}
-	if (integration == 'true' && isCapture(downloadItem)) {
+	if (isStartedByMySelf || (integration == 'true' && isCapture(downloadItem))) {
 		chrome.downloads.cancel(downloadItem.id)
 		if (askBeforeDownload == 'true') {
 			if (isCaptureFinalUrl()) {
@@ -224,16 +221,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 })
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-	const uri = decodeURIComponent(info.linkUrl)
-	const referrer = info.frameUrl || info.pageUrl
-	// mock a DownloadItem
-	const downloadItem = {
-		url: uri,
-		referrer,
-		filename: ''
-	}
-
-	aria2Send(uri, info.menuItemId, downloadItem)
+	// start a download, and it will be catch by download handler above
+	chrome.downloads.download({
+		url: decodeURIComponent(info.linkUrl)
+	})
 })
 
 chrome.notifications.onClicked.addListener(id => {
