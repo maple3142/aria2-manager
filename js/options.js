@@ -1,4 +1,13 @@
-const defaultRPC = JSON.stringify([{ name: 'ARIA2 RPC', url: 'http://localhost:6800/jsonrpc' }])
+const storage = {
+	get(key, defaultval) {
+		const val = localStorage.getItem(key)
+		return val === null ? defaultval : JSON.parse(val)
+	},
+	set(key, val) {
+		localStorage.setItem(key, JSON.stringify(val))
+	}
+}
+const defaultRPC = [{ name: 'ARIA2 RPC', url: 'http://localhost:6800/jsonrpc' }]
 const dedupe = arr => Array.from(new Set(arr))
 Vue.component('rpc', {
 	template: '#rpc',
@@ -22,14 +31,14 @@ Vue.component('rpc', {
 window.app = new Vue({
 	el: '#app',
 	data: {
-		contextMenus: localStorage.getItem('contextMenus') === 'true',
-		integration: localStorage.getItem('integration') === 'true',
-		finalUrl: localStorage.getItem('finalUrl') === 'true',
-		askBeforeDownload: localStorage.getItem('askBeforeDownload') === 'true',
-		fileSize: parseInt(localStorage.getItem('fileSize') || 10),
-		rpc_list: JSON.parse(localStorage.getItem('rpc_list') || defaultRPC),
-		black_site: JSON.parse(localStorage.getItem('black_site') || '[]').join('\n'),
-		white_site: JSON.parse(localStorage.getItem('white_site') || '[]').join('\n')
+		contextMenus: storage.get('contextMenus',false),
+		integration: storage.get('integration',false),
+		finalUrl: storage.get('finalUrl',false),
+		askBeforeDownload: storage.get('askBeforeDownload',false),
+		fileSize: storage.get('fileSize',10),
+		rpc_list: storage.get('rpc_list',defaultRPC),
+		black_site: storage.get('black_site',[]).join('\n'),
+		white_site: storage.get('white_site',[]).join('\n')
 	},
 	methods: {
 		addRpc() {
@@ -40,14 +49,18 @@ window.app = new Vue({
 		},
 		save() {
 			for (const k of ['contextMenus', 'integration', 'finalUrl', 'askBeforeDownload', 'fileSize']) {
-				localStorage.setItem(k, JSON.stringify(this[k]))
+				storage.set(k, this[k])
 			}
 			this.rpc_list = this.rpc_list.filter(rpc => rpc && rpc.name && rpc.url)
-			localStorage.setItem('rpc_list', JSON.stringify(this.rpc_list))
-			this.black_site = dedupe(this.black_site.split('\n').filter(x => x))
-			localStorage.setItem('black_site', JSON.stringify(this.black_site))
-			this.white_site = dedupe(this.white_site.split('\n').filter(x => x))
-			localStorage.setItem('white_site', JSON.stringify(this.white_site))
+			storage.set('rpc_list',this.rpc_list)
+
+			const arr_black_site = dedupe(this.black_site.split('\n').filter(x => x))
+			storage.set('black_site', arr_black_site)
+			this.black_site=arr_black_site.join('\n')
+
+			const arr_white_site = dedupe(this.white_site.split('\n').filter(x => x))
+			storage.set('white_site', arr_white_site)
+			this.white_site=arr_white_site.join('\n')
 		},
 		reset() {
 			localStorage.clear()

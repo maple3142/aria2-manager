@@ -1,10 +1,11 @@
 {
-	"update_url": "https://clients2.google.com/service/update2/crx",
-
 	"manifest_version": 2,
 	"name": "__MSG_appName__",
 	"short_name": "Aria2 WebUI",
-	"options_page": "options.html",
+	"options_ui": {
+		"page": "ui/options.html",
+		"open_in_tab": true
+	},
 	"permissions": [
 		"cookies",
 		"tabs",
@@ -16,17 +17,14 @@
 		"storage"
 	],
 	"version": "1.2.3",
-	"minimum_chrome_version": "50.0.0",
-
+	"minimum_chrome_version": "60.0.0",
 	"background": {
-		"persistent": false,
+		"persistent": true,
 		"scripts": ["js/xfetch-js.min.js", "background.js"]
 	},
-
 	"browser_action": {
 		"default_icon": "images/logo64.png"
 	},
-
 	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 	"default_locale": "zh_CN",
 	"description": "__MSG_description__",

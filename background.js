@@ -1,3 +1,4 @@
+const IS_FIREFOX = typeof browser !== 'undefined'
 const storage = {
 	get(key, defaultval) {
 		const val = localStorage.getItem(key)
@@ -45,6 +46,9 @@ function aria2Send(link, rpcUrl, downloadItem) {
 		filename = downloadItem.filename
 		referrer = downloadItem.referrer
 		cookiesLink = downloadItem.url
+		if (IS_FIREFOX) {
+			filename = filename.split(/(\/|\\)/).pop()
+		}
 	} else {
 		cookiesLink = link
 	}
@@ -81,6 +85,7 @@ function aria2Send(link, rpcUrl, downloadItem) {
 			if (auth && auth.startsWith('token:')) {
 				rpc_data.params.unshift(auth)
 			}
+			console.log(rpc_data)
 			const request = xf
 				.post(url, {
 					json: rpc_data,
@@ -118,8 +123,7 @@ function aria2Send(link, rpcUrl, downloadItem) {
 						type: 'basic',
 						title,
 						message: des + ' -- ' + msg,
-						iconUrl: 'images/logo64.png',
-						requireInteraction: false
+						iconUrl: 'images/logo64.png'
 					}
 					const id = generateId()
 					showNotification(id, opt)
@@ -145,18 +149,24 @@ function isCapture(downloadItem) {
 	const inBlackList = black_site.some(rule => domain.endsWith(rule))
 	const okWithList = inWhiteList || !inBlackList
 	const okWithFileSize = downloadItem.fileSize >= fileSize * 1024 * 1024
-	return okWithFileSize && okWithList
+	const filesizeUnknownIsAcceptable = IS_FIREFOX && downloadItem.fileSize === -1
+	return (okWithFileSize || filesizeUnknownIsAcceptable) && okWithList
 }
 
 function isCaptureFinalUrl() {
 	return storage.get('finalUrl')
 }
 
-chrome.downloads.onDeterminingFilename.addListener((downloadItem, suggestion) => {
+// Firefox support of `onDeterminingFilename`: https://bugzilla.mozilla.org/show_bug.cgi?id=1439992
+const downloadListener = chrome.downloads.onDeterminingFilename || chrome.downloads.onCreated
+downloadListener.addListener((downloadItem, suggestion) => {
 	const integrationEnabled = storage.get('integration')
 	const askBeforeDownload = storage.get('askBeforeDownload')
 	const isStartedByMySelf = downloadItem.byExtensionName === 'YAAW for Chrome'
-
+	if (IS_FIREFOX) {
+		// firefox doesn't support it
+		downloadItem.finalUrl = downloadItem.url
+	}
 	if (isStartedByMySelf || (integrationEnabled && isCapture(downloadItem))) {
 		chrome.downloads.cancel(downloadItem.id)
 		if (askBeforeDownload) {
@@ -179,18 +189,19 @@ chrome.downloads.onDeterminingFilename.addListener((downloadItem, suggestion) =>
 chrome.browserAction.onClicked.addListener(launchUI)
 
 function launchUI(downloadURL, referrer) {
-	const index = chrome.extension.getURL('ui/ariang/index.html')
+	const indexUrl = chrome.extension.getURL('ui/ariang/index.html')
+	let url = indexUrl
 	if (typeof downloadURL === 'string') {
-		url = `${index}#!/new?url=${btoa(downloadURL)}`
-		if (typeof referrer === 'string' && referrer != '') {
-			url = `${url}&referer=${referrer}`
+		const params = new URLSearchParams()
+		params.set('url', btoa(downloadURL))
+		if (typeof referrer === 'string' && referrer.length) {
+			params.set('referer', referrer)
 		}
-	} else {
-		url = index //clicked from notification or sbrowserAction icon, only launch UI.
+		url += `#!/new?${params.toString()}`
 	}
-	chrome.tabs.getAllInWindow(undefined, tabs => {
-		for (let i = 0, tab; (tab = tabs[i]); i++) {
-			if (tab.url && tab.url.startsWith(index)) {
+	chrome.tabs.query({ currentWindow: true }, tabs => {
+		for (const tab of tabs.filter(tab => tab.url && tab.url.startsWith(indexUrl))) {
+			if (tab.url && tab.url.startsWith(indexUrl)) {
 				chrome.tabs.update(tab.id, {
 					selected: true,
 					url
@@ -204,7 +215,7 @@ function launchUI(downloadURL, referrer) {
 	})
 }
 
-//add Context Menu
+// Add Context Menu
 function addContextMenu(id, title) {
 	chrome.contextMenus.create({
 		id,
@@ -228,10 +239,20 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 })
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-	// start a download, and it will be catch by download handler above
-	chrome.downloads.download({
-		url: decodeURIComponent(info.linkUrl)
-	})
+	const uri = decodeURIComponent(info.linkUrl)
+	const referrer = info.frameUrl || info.pageUrl
+	if (IS_FIREFOX) {
+		aria2Send(uri, info.menuItemId, {
+			url: uri,
+			referrer,
+			filename: ''
+		})
+	} else {
+		// start a download, and it will be catch by download handler above
+		chrome.downloads.download({
+			url: uri
+		})
+	}
 })
 
 chrome.notifications.onClicked.addListener(id => {
