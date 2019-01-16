@@ -5,7 +5,12 @@ css/aria-ng-7cdcf46491.min.css
 css/bootstrap-3.3.7.min.css
 css/plugins-acd93e5a25.min.css
 js/angular-packages-1.6.10.min.js
+js/aria-ng-4b53675237.min.js
 js/aria-ng-5a5edd51df.min.js
+js/aria-ng-5b49d81cfe.min.js
+js/aria-ng-ae2e2376b3.min.js
+js/aria-ng-b66359a5b5.min.js
+js/aria-ng-dce1acf9f9.min.js
 js/bootstrap-3.3.7.min.js
 js/echarts-common-3.8.5.min.js
 js/jquery-3.3.1.min.js
@@ -13,6 +18,10 @@ js/moment-with-locales-2.22.2.min.js
 js/plugins-225e0232de.min.js
 fonts/fontawesome-webfont.woff2
 index.html
+favicon.ico
+favicon.png
+tileicon.png
+touchicon.png
 
 NETWORK:
 *
@@ -20,4 +29,4 @@ NETWORK:
 SETTINGS:
 prefer-online
 
-# hash: 741084b73b69fc27e8d0b783bd6551ce3b7935680a1f806d05864bc76201f445
+# hash: e5665f00ded831d91380a9154599a851e019ab5bdaf8a07b6fb07f782609a209
