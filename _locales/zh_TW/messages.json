@@ -1,6 +1,6 @@
 {
 	"appName": {
-		"message": "YAAW for Chrome"
+		"message": "Aria2 manager"
 	},
 	"description": {
 		"message": "Aria2 Web UI 支援手動新增和自動攔截下載到Aria2。 (由 YAAW2 for Chrome 修改)"

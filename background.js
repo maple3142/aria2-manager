@@ -162,7 +162,7 @@ const downloadListener = chrome.downloads.onDeterminingFilename || chrome.downlo
 downloadListener.addListener((downloadItem, suggestion) => {
 	const integrationEnabled = storage.get('integration')
 	const askBeforeDownload = storage.get('askBeforeDownload')
-	const isStartedByMySelf = downloadItem.byExtensionName === 'YAAW for Chrome'
+	const isStartedByMySelf = downloadItem.byExtensionName === 'Aria2 manager'
 	if (IS_FIREFOX) {
 		// firefox doesn't support it
 		downloadItem.finalUrl = downloadItem.url
