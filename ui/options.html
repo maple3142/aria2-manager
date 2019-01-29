@@ -102,6 +102,28 @@
 							></textarea>
 						</div>
 					</fieldset>
+					<fieldset>
+						<legend>{{ i18n('whiteExtsListStr') }}</legend>
+						<div class="field">
+							<textarea
+								rows="6"
+								:placeholder="i18n('placeHolderTipStr')"
+								v-model="white_exts"
+								@change="save"
+							></textarea>
+						</div>
+					</fieldset>
+					<fieldset>
+						<legend>{{ i18n('blackExtsListStr') }}</legend>
+						<div class="field">
+							<textarea
+								rows="6"
+								:placeholder="i18n('placeHolderTipStr')"
+								v-model="black_exts"
+								@change="save"
+							></textarea>
+						</div>
+					</fieldset>
 				</div>
 			</div>
 			<div class="ts centered grid">

@@ -138,6 +138,8 @@ function isCapture(downloadItem) {
 	const fileSize = storage.get('fileSize')
 	const white_site = storage.get('white_site', [])
 	const black_site = storage.get('black_site', [])
+	const white_exts = storage.get('white_exts', [])
+	const black_exts = storage.get('black_exts', [])
 	const url = downloadItem.referrer || downloadItem.url
 
 	if (downloadItem.error || downloadItem.state != 'in_progress' || !url.startsWith('http')) {
@@ -147,10 +149,13 @@ function isCapture(downloadItem) {
 	const domain = new URL(url).hostname
 	const inWhiteList = white_site.some(rule => domain.endsWith(rule))
 	const inBlackList = black_site.some(rule => domain.endsWith(rule))
-	const okWithList = inWhiteList || !inBlackList
+	const inWhiteExtsList = white_exts.some(rule => domain.endsWith(rule))
+	const inBlackExtsList = black_exts.some(rule => domain.endsWith(rule))
 	const okWithFileSize = downloadItem.fileSize >= fileSize * 1024 * 1024
 	const filesizeUnknownIsAcceptable = IS_FIREFOX && downloadItem.fileSize === -1
-	return (okWithFileSize || filesizeUnknownIsAcceptable) && okWithList
+	const isDownloadableFileNotInWhiteList =
+		(okWithFileSize || filesizeUnknownIsAcceptable) && !inBlackList && !inBlackExtsList
+	return inWhiteList || inWhiteExtsList || isDownloadableFileNotInWhiteList
 }
 
 function isCaptureFinalUrl() {

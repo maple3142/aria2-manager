@@ -31,14 +31,16 @@ Vue.component('rpc', {
 window.app = new Vue({
 	el: '#app',
 	data: {
-		contextMenus: storage.get('contextMenus',false),
-		integration: storage.get('integration',false),
-		finalUrl: storage.get('finalUrl',false),
-		askBeforeDownload: storage.get('askBeforeDownload',false),
-		fileSize: storage.get('fileSize',10),
-		rpc_list: storage.get('rpc_list',defaultRPC),
-		black_site: storage.get('black_site',[]).join('\n'),
-		white_site: storage.get('white_site',[]).join('\n')
+		contextMenus: storage.get('contextMenus', false),
+		integration: storage.get('integration', false),
+		finalUrl: storage.get('finalUrl', false),
+		askBeforeDownload: storage.get('askBeforeDownload', false),
+		fileSize: storage.get('fileSize', 10),
+		rpc_list: storage.get('rpc_list', defaultRPC),
+		black_site: storage.get('black_site', []).join('\n'),
+		white_site: storage.get('white_site', []).join('\n'),
+		black_exts: storage.get('black_exts', []).join('\n'),
+		white_exts: storage.get('white_exts', []).join('\n')
 	},
 	methods: {
 		addRpc() {
@@ -52,15 +54,23 @@ window.app = new Vue({
 				storage.set(k, this[k])
 			}
 			this.rpc_list = this.rpc_list.filter(rpc => rpc && rpc.name && rpc.url)
-			storage.set('rpc_list',this.rpc_list)
+			storage.set('rpc_list', this.rpc_list)
 
 			const arr_black_site = dedupe(this.black_site.split('\n').filter(x => x))
 			storage.set('black_site', arr_black_site)
-			this.black_site=arr_black_site.join('\n')
+			this.black_site = arr_black_site.join('\n')
 
 			const arr_white_site = dedupe(this.white_site.split('\n').filter(x => x))
 			storage.set('white_site', arr_white_site)
-			this.white_site=arr_white_site.join('\n')
+			this.white_site = arr_white_site.join('\n')
+
+			const arr_black_exts = dedupe(this.black_exts.split('\n').filter(x => x))
+			storage.set('black_exts', arr_black_exts)
+			this.black_exts = arr_black_exts.join('\n')
+
+			const arr_white_exts = dedupe(this.white_exts.split('\n').filter(x => x))
+			storage.set('white_exts', arr_white_exts)
+			this.white_exts = arr_white_exts.join('\n')
 		},
 		reset() {
 			localStorage.clear()

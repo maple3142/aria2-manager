@@ -35,17 +35,11 @@
 	"blackListStr": {
 		"message": "網站黑名單"
 	},
-	"addToWhiteListStr": {
-		"message": "當前網站 -> 白名單"
+	"whiteExtsListStr": {
+		"message": "副檔名白名單"
 	},
-	"addToBlackListStr": {
-		"message": "當前網站 -> 黑名單"
-	},
-	"removeFromWhiteListStr": {
-		"message": "移出白名單"
-	},
-	"removeFromBlackListStr": {
-		"message": "移出黑名單"
+	"blackExtsListStr": {
+		"message": "副檔名黑名單"
 	},
 	"exportFailedStr": {
 		"message": "導出失敗"
