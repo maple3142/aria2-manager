@@ -3,7 +3,7 @@
 		"message": "Aria2 manager"
 	},
 	"description": {
-		"message": "Aria2 Web UI in pure HTML/CSS/Javascirpt.(Modified from YAAW2 for Chrome)"
+		"message": "Aria2 Web UI in pure HTML/CSS/Javascirpt. (Modified from YAAW2 for Chrome)"
 	},
 	"contextmenuTitle": {
 		"message": "Export to "
@@ -15,13 +15,13 @@
 		"message": "Context Menu"
 	},
 	"contextmenuDes": {
-		"message": "Add capture item to context menu"
+		"message": "Add a menu item to context menu"
 	},
 	"downloadCaptureStr": {
 		"message": "Download Capture"
 	},
 	"downloadCaptureDes": {
-		"message": " Enable auto capture when download file size ≥"
+		"message": "Enable auto capture when download file size ≥"
 	},
 	"askBeforeDownloadDes": {
 		"message": "Ask detail settings before auto downloading"
@@ -48,7 +48,7 @@
 		"message": "Could not connect to Aria2, task export failed!"
 	},
 	"exportSucceedStr": {
-		"message": "Export Succeed"
+		"message": "Export successful"
 	},
 	"exportSucceedDes": {
 		"message": "\nDownload task is beginning."
