@@ -9,9 +9,17 @@ const storage = {
 		new Promise(res => {
 			chrome.storage.sync.set({ [key]: val }, res)
 		}),
-	getMult: (...keys) =>
+	getMult: obj =>
 		new Promise(res => {
-			chrome.storage.sync.get(keys, res)
+			const keys = Object.keys(obj)
+			chrome.storage.sync.get(keys, result => {
+				for (const [k, v] of Object.entries(obj)) {
+					if (typeof result[k] === 'undefined') {
+						result[k] = v
+					}
+				}
+				res(result)
+			})
 		}),
 	setMult: obj =>
 		new Promise(res => {

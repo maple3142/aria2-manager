@@ -9,9 +9,17 @@ const storage = {
 		new Promise(res => {
 			chrome.storage.sync.set({ [key]: val }, res)
 		}),
-	getMult: (...keys) =>
+	getMult: obj =>
 		new Promise(res => {
-			chrome.storage.sync.get(keys, res)
+			const keys = Object.keys(obj)
+			chrome.storage.sync.get(keys, result => {
+				for (const [k, v] of Object.entries(obj)) {
+					if (typeof result[k] === 'undefined') {
+						result[k] = v
+					}
+				}
+				res(result)
+			})
 		}),
 	setMult: obj =>
 		new Promise(res => {
@@ -40,21 +48,26 @@ Vue.component('rpc', {
 	}
 })
 ;(async () => {
+	const initOpts = await storage.getMult({
+		contextMenus: false,
+		integration: false,
+		finalUrl: false,
+		captureMagnet: false,
+		askBeforeDownload: false,
+		fileSize: 10,
+		rpc_list: defaultRPC,
+		black_site: [],
+		white_site: [],
+		black_exts: [],
+		white_exts: []
+	})
+	initOpts.black_site = initOpts.black_site.join('\n')
+	initOpts.white_site = initOpts.white_site.join('\n')
+	initOpts.black_exts = initOpts.black_exts.join('\n')
+	initOpts.white_exts = initOpts.white_exts.join('\n')
 	window.app = new Vue({
 		el: '#app',
-		data: {
-			contextMenus: await storage.get('contextMenus', false),
-			integration: await storage.get('integration', false),
-			finalUrl: await storage.get('finalUrl', false),
-			captureMagnet: await storage.get('captureMagnet', false),
-			askBeforeDownload: await storage.get('askBeforeDownload', false),
-			fileSize: await storage.get('fileSize', 10),
-			rpc_list: await storage.get('rpc_list', defaultRPC),
-			black_site: (await storage.get('black_site', [])).join('\n'),
-			white_site: (await storage.get('white_site', [])).join('\n'),
-			black_exts: (await storage.get('black_exts', [])).join('\n'),
-			white_exts: (await storage.get('white_exts', [])).join('\n')
-		},
+		data: initOpts,
 		methods: {
 			addRpc() {
 				this.rpc_list.push({
