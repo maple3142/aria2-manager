@@ -81,47 +81,49 @@
 						<rpc v-for="(rpc,idx) in rpc_list" :value="rpc" @input="updaterpc($event,idx)"/>
 					</fieldset>
 					<fieldset>
-						<legend>{{ i18n('whiteListStr') }}</legend>
-						<div class="field">
-							<textarea
-								rows="6"
-								:placeholder="i18n('placeHolderTipStr')"
-								v-model="white_site"
-								@change="save"
-							></textarea>
+						<legend>{{ i18n('website') }}</legend>
+						<div class="fields">
+							<div class="field">
+								<label>{{ i18n('whiteList') }}</label>
+								<textarea
+									rows="6"
+									:placeholder="i18n('placeHolderTipStr')"
+									v-model="white_site"
+									@change="save"
+								></textarea>
+							</div>
+							<div class="field">
+								<label>{{ i18n('blackList') }}</label>
+								<textarea
+									rows="6"
+									:placeholder="i18n('placeHolderTipStr')"
+									v-model="black_site"
+									@change="save"
+								></textarea>
+							</div>
 						</div>
 					</fieldset>
 					<fieldset>
-						<legend>{{ i18n('blackListStr') }}</legend>
-						<div class="field">
-							<textarea
-								rows="6"
-								:placeholder="i18n('placeHolderTipStr')"
-								v-model="black_site"
-								@change="save"
-							></textarea>
-						</div>
-					</fieldset>
-					<fieldset>
-						<legend>{{ i18n('whiteExtsListStr') }}</legend>
-						<div class="field">
-							<textarea
-								rows="6"
-								:placeholder="i18n('placeHolderTipStr')"
-								v-model="white_exts"
-								@change="save"
-							></textarea>
-						</div>
-					</fieldset>
-					<fieldset>
-						<legend>{{ i18n('blackExtsListStr') }}</legend>
-						<div class="field">
-							<textarea
-								rows="6"
-								:placeholder="i18n('placeHolderTipStr')"
-								v-model="black_exts"
-								@change="save"
-							></textarea>
+						<legend>{{ i18n('fileExtension') }}</legend>
+						<div class="fields">
+							<div class="field">
+								<label>{{ i18n('whiteList') }}</label>
+								<textarea
+									rows="6"
+									:placeholder="i18n('placeHolderTipStr')"
+									v-model="white_exts"
+									@change="save"
+								></textarea>
+							</div>
+							<div class="field">
+								<label>{{ i18n('blackList') }}</label>
+								<textarea
+									rows="6"
+									:placeholder="i18n('placeHolderTipStr')"
+									v-model="black_exts"
+									@change="save"
+								></textarea>
+							</div>
 						</div>
 					</fieldset>
 				</div>
