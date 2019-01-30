@@ -29,6 +29,9 @@
 	"captureFinalUrlDes": {
 		"message": "Capture the final URL to exclude multi-redirect"
 	},
+	"captureMagnet": {
+		"message": "Capture magnet link"
+	},
 	"website": {
 		"message": "Website"
 	},

@@ -34,6 +34,7 @@ window.app = new Vue({
 		contextMenus: storage.get('contextMenus', false),
 		integration: storage.get('integration', false),
 		finalUrl: storage.get('finalUrl', false),
+		captureMagnet: storage.get('captureMagnet', false),
 		askBeforeDownload: storage.get('askBeforeDownload', false),
 		fileSize: storage.get('fileSize', 10),
 		rpc_list: storage.get('rpc_list', defaultRPC),
@@ -50,7 +51,14 @@ window.app = new Vue({
 			})
 		},
 		save() {
-			for (const k of ['contextMenus', 'integration', 'finalUrl', 'askBeforeDownload', 'fileSize']) {
+			for (const k of [
+				'contextMenus',
+				'integration',
+				'finalUrl',
+				'captureMagnet',
+				'askBeforeDownload',
+				'fileSize'
+			]) {
 				storage.set(k, this[k])
 			}
 			this.rpc_list = this.rpc_list.filter(rpc => rpc && rpc.name && rpc.url)

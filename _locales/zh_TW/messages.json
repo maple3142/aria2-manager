@@ -29,10 +29,13 @@
 	"captureFinalUrlDes": {
 		"message": "攔截最終下載地址 (避免多重重新導向導致下載不正常的情況)"
 	},
+	"captureMagnet": {
+		"message": "攔截 Magnet 連結"
+	},
 	"website": {
 		"message": "網站"
 	},
-	"fileExtension":{
+	"fileExtension": {
 		"message": "副檔名"
 	},
 	"whiteList": {

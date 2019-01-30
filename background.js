@@ -162,7 +162,7 @@ function isCaptureFinalUrl() {
 	return storage.get('finalUrl')
 }
 
-// Firefox support of `onDeterminingFilename`: https://bugzilla.mozilla.org/show_bug.cgi?id=1439992
+// Firefox lacks support of `onDeterminingFilename`: https://bugzilla.mozilla.org/show_bug.cgi?id=1439992
 const downloadListener = chrome.downloads.onDeterminingFilename || chrome.downloads.onCreated
 downloadListener.addListener((downloadItem, suggestion) => {
 	const integrationEnabled = storage.get('integration')
@@ -257,6 +257,14 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 		chrome.downloads.download({
 			url: uri
 		})
+	}
+})
+
+chrome.runtime.onMessage.addListener(msg => {
+	if (msg.action === 'magnetCaptured' && storage.get('captureMagnet')) {
+		const magnet = msg.data
+		const rpc_list = storage.get('rpc_list', [])
+		aria2Send(magnet, rpc_list[0]['url'])
 	}
 })
 

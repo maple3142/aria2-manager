@@ -22,6 +22,14 @@
 		"persistent": true,
 		"scripts": ["js/xfetch-js.min.js", "background.js"]
 	},
+	"content_scripts": [
+		{
+			"js": ["contentscript.js"],
+			"matches": ["<all_urls>"],
+			"run_at": "document_end",
+			"all_frames": true
+		}
+	],
 	"browser_action": {
 		"default_icon": "images/logo64.png"
 	},

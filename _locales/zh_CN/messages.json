@@ -29,6 +29,9 @@
 	"captureFinalUrlDes": {
 		"message": "拦截最终下载地址（排除多重跳转导致下载不正常的情况）"
 	},
+	"captureMagnet": {
+		"message": "拦截 Magnet 链接"
+	},
 	"website": {
 		"message": "网站"
 	},

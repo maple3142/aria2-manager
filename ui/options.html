@@ -72,6 +72,12 @@
 								<label for="finalUrl">{{ i18n('captureFinalUrlDes') }}</label>
 							</div>
 						</div>
+						<div class="field">
+							<div class="ts checkbox">
+								<input type="checkbox" v-model="captureMagnet" @change="save" id="captureMagnet" />
+								<label for="captureMagnet">{{ i18n('captureMagnet') }}</label>
+							</div>
+						</div>
 					</fieldset>
 					<fieldset>
 						<legend>JSON-RPC</legend>
