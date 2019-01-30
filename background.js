@@ -1,12 +1,23 @@
 const IS_FIREFOX = typeof browser !== 'undefined'
 const storage = {
-	get(key, defaultval) {
-		const val = localStorage.getItem(key)
-		return val === null ? defaultval : JSON.parse(val)
-	},
-	set(key, val) {
-		localStorage.setItem(key, JSON.stringify(val))
-	}
+	get: (key, defaultval) =>
+		new Promise(res => {
+			chrome.storage.sync.get([key], result => {
+				res(typeof result[key] === 'undefined' ? defaultval : result[key])
+			})
+		}),
+	set: (key, val) =>
+		new Promise(res => {
+			chrome.storage.sync.set({ [key]: val }, res)
+		}),
+	getMult: (...keys) =>
+		new Promise(res => {
+			chrome.storage.sync.get(keys, res)
+		}),
+	setMult: obj =>
+		new Promise(res => {
+			chrome.storage.sync.set(obj, res)
+		})
 }
 const defaultRPC = [{ name: 'ARIA2 RPC', url: 'http://localhost:6800/jsonrpc' }]
 function timeout(ms) {
@@ -134,12 +145,12 @@ function aria2Send(link, rpcUrl, downloadItem) {
 function matchRule(str, rule) {
 	return new RegExp(`^${rule.split('*').join('.*')}$`).test(str)
 }
-function isCapture(downloadItem) {
-	const fileSize = storage.get('fileSize')
-	const white_site = storage.get('white_site', [])
-	const black_site = storage.get('black_site', [])
-	const white_exts = storage.get('white_exts', [])
-	const black_exts = storage.get('black_exts', [])
+async function isCapture(downloadItem) {
+	const fileSize = await storage.get('fileSize')
+	const white_site = await storage.get('white_site', [])
+	const black_site = await storage.get('black_site', [])
+	const white_exts = await storage.get('white_exts', [])
+	const black_exts = await storage.get('black_exts', [])
 	const url = downloadItem.referrer || downloadItem.url
 
 	if (downloadItem.error || downloadItem.state != 'in_progress' || !url.startsWith('http')) {
@@ -158,31 +169,27 @@ function isCapture(downloadItem) {
 	return inWhiteList || inWhiteExtsList || isDownloadableFileNotInWhiteList
 }
 
-function isCaptureFinalUrl() {
-	return storage.get('finalUrl')
-}
-
 // Firefox lacks support of `onDeterminingFilename`: https://bugzilla.mozilla.org/show_bug.cgi?id=1439992
 const downloadListener = chrome.downloads.onDeterminingFilename || chrome.downloads.onCreated
-downloadListener.addListener((downloadItem, suggestion) => {
-	const integrationEnabled = storage.get('integration')
-	const askBeforeDownload = storage.get('askBeforeDownload')
+downloadListener.addListener(async (downloadItem, suggestion) => {
+	const integrationEnabled = await storage.get('integration')
+	const askBeforeDownload = await storage.get('askBeforeDownload')
 	const isStartedByMySelf = downloadItem.byExtensionName === 'Aria2 manager'
 	if (IS_FIREFOX) {
 		// firefox doesn't support it
 		downloadItem.finalUrl = downloadItem.url
 	}
-	if (isStartedByMySelf || (integrationEnabled && isCapture(downloadItem))) {
+	if (isStartedByMySelf || (integrationEnabled && await isCapture(downloadItem))) {
 		chrome.downloads.cancel(downloadItem.id)
 		if (askBeforeDownload) {
-			if (isCaptureFinalUrl()) {
+			if (await storage.get('finalUrl')) {
 				launchUI(downloadItem.finalUrl, downloadItem.referrer)
 			} else {
 				launchUI(downloadItem.url, downloadItem.referrer)
 			}
 		} else {
-			const rpc_list = storage.get('rpc_list', defaultRPC)
-			if (isCaptureFinalUrl()) {
+			const rpc_list = await storage.get('rpc_list', defaultRPC)
+			if (await storage.get('finalUrl')) {
 				aria2Send(downloadItem.finalUrl, rpc_list[0]['url'], downloadItem)
 			} else {
 				aria2Send(downloadItem.url, rpc_list[0]['url'], downloadItem)
@@ -229,13 +236,13 @@ function addContextMenu(id, title) {
 	})
 }
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 	const strExport = chrome.i18n.getMessage('contextmenuTitle')
 	if (changeInfo.status === 'loading') {
 		chrome.contextMenus.removeAll()
-		const contextMenusEnabled = storage.get('contextMenus')
+		const contextMenusEnabled = await storage.get('contextMenus')
 		if (contextMenusEnabled) {
-			const rpc_list = storage.get('rpc_list', defaultRPC)
+			const rpc_list = await storage.get('rpc_list', defaultRPC)
 			for (const rpc of rpc_list) {
 				addContextMenu(rpc.url, strExport + rpc.name)
 			}
@@ -260,10 +267,10 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 	}
 })
 
-chrome.runtime.onMessage.addListener(msg => {
-	if (msg.action === 'magnetCaptured' && storage.get('captureMagnet')) {
+chrome.runtime.onMessage.addListener(async msg => {
+	if (msg.action === 'magnetCaptured' && await storage.get('captureMagnet')) {
 		const magnet = msg.data
-		const rpc_list = storage.get('rpc_list', [])
+		const rpc_list = await storage.get('rpc_list', [])
 		aria2Send(magnet, rpc_list[0]['url'])
 	}
 })

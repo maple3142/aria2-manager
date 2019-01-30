@@ -13,8 +13,8 @@
 		"activeTab",
 		"contextMenus",
 		"downloads",
-		"<all_urls>",
-		"storage"
+		"storage",
+		"<all_urls>"
 	],
 	"version": "1.2.4",
 	"minimum_chrome_version": "60.0.0",
