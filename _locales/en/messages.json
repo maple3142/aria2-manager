@@ -24,22 +24,22 @@
 		"message": "Enable auto capture when download file size ≥"
 	},
 	"askBeforeDownloadDes": {
-		"message": "Ask detail settings before auto downloading"
+		"message": "Show detailed info before auto download starting"
 	},
 	"captureFinalUrlDes": {
 		"message": "Capture the final URL to exclude multi-redirect"
 	},
-	"whiteListStr": {
-		"message": "Website White-list"
+	"website": {
+		"message": "Website"
 	},
-	"blackListStr": {
-		"message": "Website Black-list"
+	"fileExtension":{
+		"message": "File extension"
 	},
-	"whiteExtsListStr": {
-		"message": "File extension White-list"
+	"whiteList": {
+		"message": "Whitelist"
 	},
-	"blackExtsListStr": {
-		"message": "File extension Black-list"
+	"blackList": {
+		"message": "Blacklist"
 	},
 	"exportFailedStr": {
 		"message": "Export Failed"
@@ -48,12 +48,12 @@
 		"message": "Could not connect to Aria2, task export failed!"
 	},
 	"exportSucceedStr": {
-		"message": "Export successful"
+		"message": "Export succeed"
 	},
 	"exportSucceedDes": {
 		"message": "\nDownload task is beginning."
 	},
 	"placeHolderTipStr": {
-		"message": "one website per line"
+		"message": "1 website or file extension per line"
 	}
 }

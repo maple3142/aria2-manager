@@ -29,17 +29,17 @@
 	"captureFinalUrlDes": {
 		"message": "拦截最终下载地址（排除多重跳转导致下载不正常的情况）"
 	},
-	"whiteListStr": {
-		"message": "网站白名单"
+	"website": {
+		"message": "网站"
 	},
-	"blackListStr": {
-		"message": "网站黑名单"
+	"fileExtension":{
+		"message": "扩展名"
 	},
-	"whiteExtsListStr": {
-		"message": "扩展名白名单"
+	"whiteList": {
+		"message": "白名单"
 	},
-	"blackExtsListStr": {
-		"message": "扩展名黑名单"
+	"blackList": {
+		"message": "黑名单"
 	},
 	"exportFailedStr": {
 		"message": "导出失败"
@@ -54,6 +54,6 @@
 		"message": "\nAria2 下载任务已开始。"
 	},
 	"placeHolderTipStr": {
-		"message": "每行一个网站"
+		"message": "每行一个网站或扩展名"
 	}
 }

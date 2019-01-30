@@ -29,17 +29,17 @@
 	"captureFinalUrlDes": {
 		"message": "攔截最終下載地址 (避免多重重新導向導致下載不正常的情況)"
 	},
-	"whiteListStr": {
-		"message": "網站白名單"
+	"website": {
+		"message": "網站"
 	},
-	"blackListStr": {
-		"message": "網站黑名單"
+	"fileExtension":{
+		"message": "副檔名"
 	},
-	"whiteExtsListStr": {
-		"message": "副檔名白名單"
+	"whiteList": {
+		"message": "白名單"
 	},
-	"blackExtsListStr": {
-		"message": "副檔名黑名單"
+	"blackList": {
+		"message": "黑名單"
 	},
 	"exportFailedStr": {
 		"message": "導出失敗"
@@ -54,6 +54,6 @@
 		"message": "\nAria2已經開始任務下載。"
 	},
 	"placeHolderTipStr": {
-		"message": "每行一個網址"
+		"message": "每行一個網址或附檔名"
 	}
 }
