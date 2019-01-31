@@ -13,31 +13,24 @@
 		"contextMenus",
 		"downloads",
 		"storage",
+		"activeTab",
 		"<all_urls>"
 	],
 	"version": "1.2.5",
 	"minimum_chrome_version": "60.0.0",
 	"background": {
 		"persistent": true,
-		"scripts": ["js/xfetch-js.min.js", "background.js"]
+		"scripts": ["js/xfetch-js.min.js", "js/background.js"]
 	},
-	"content_scripts": [
-		{
-			"js": ["contentscript.js"],
-			"matches": ["<all_urls>"],
-			"run_at": "document_end",
-			"all_frames": true
-		}
-	],
 	"browser_action": {
-		"default_icon": "images/logo64.png"
+		"default_icon": "imgs/logo64.png"
 	},
 	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 	"default_locale": "zh_TW",
 	"description": "__MSG_description__",
 	"icons": {
-		"128": "images/logo128.png",
-		"32": "images/logo32.png",
-		"64": "images/logo64.png"
+		"128": "imgs/logo128.png",
+		"32": "imgs/logo32.png",
+		"64": "imgs/logo64.png"
 	}
 }

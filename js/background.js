@@ -104,7 +104,6 @@ function aria2Send(link, rpcUrl, downloadItem) {
 			if (auth && auth.startsWith('token:')) {
 				rpc_data.params.unshift(auth)
 			}
-			console.log(rpc_data)
 			const request = xf
 				.post(url, {
 					json: rpc_data,
@@ -121,7 +120,7 @@ function aria2Send(link, rpcUrl, downloadItem) {
 						type: 'basic',
 						title,
 						message: des,
-						iconUrl: 'images/logo64.png',
+						iconUrl: 'imgs/logo64.png',
 						isClickable: true
 					}
 					const id = generateId()
@@ -142,7 +141,7 @@ function aria2Send(link, rpcUrl, downloadItem) {
 						type: 'basic',
 						title,
 						message: des + ' -- ' + msg,
-						iconUrl: 'images/logo64.png'
+						iconUrl: 'imgs/logo64.png'
 					}
 					const id = generateId()
 					showNotification(id, opt)
@@ -187,7 +186,7 @@ downloadListener.addListener(async (downloadItem, suggestion) => {
 		// firefox doesn't support it
 		downloadItem.finalUrl = downloadItem.url
 	}
-	if (isStartedByMySelf || (integrationEnabled && await isCapture(downloadItem))) {
+	if (isStartedByMySelf || (integrationEnabled && (await isCapture(downloadItem)))) {
 		chrome.downloads.cancel(downloadItem.id)
 		if (askBeforeDownload) {
 			if (await storage.get('finalUrl')) {
@@ -255,6 +254,13 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 				addContextMenu(rpc.url, strExport + rpc.name)
 			}
 		}
+		if (await storage.get('captureMagnet') && tab.url.startsWith('http')) {
+			chrome.tabs.executeScript(
+				tabId,
+				{ file: 'js/capturemagnet.js', allFrames: true, runAt: 'document_end' },
+				() => {}
+			)
+		}
 	}
 })
 
@@ -276,7 +282,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 })
 
 chrome.runtime.onMessage.addListener(async msg => {
-	if (msg.action === 'magnetCaptured' && await storage.get('captureMagnet')) {
+	if (msg.action === 'magnetCaptured' && (await storage.get('captureMagnet'))) {
 		const magnet = msg.data
 		const rpc_list = await storage.get('rpc_list', [])
 		aria2Send(magnet, rpc_list[0]['url'])
