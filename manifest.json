@@ -10,13 +10,12 @@
 		"cookies",
 		"tabs",
 		"notifications",
-		"activeTab",
 		"contextMenus",
 		"downloads",
 		"storage",
 		"<all_urls>"
 	],
-	"version": "1.2.4",
+	"version": "1.2.5",
 	"minimum_chrome_version": "60.0.0",
 	"background": {
 		"persistent": true,
@@ -34,7 +33,7 @@
 		"default_icon": "images/logo64.png"
 	},
 	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
-	"default_locale": "zh_CN",
+	"default_locale": "zh_TW",
 	"description": "__MSG_description__",
 	"icons": {
 		"128": "images/logo128.png",
