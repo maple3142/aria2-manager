@@ -37,6 +37,9 @@ function generateId() {
 function showNotification(id, opt) {
 	return chrome.notifications.create(id, opt, notifyId => notifyId)
 }
+function randomStr(){
+	return Math.random() + ':' + Math.random()
+}
 function parse_url(url) {
 	const auth_str = request_auth(url)
 	let auth = null
@@ -251,7 +254,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 		if (contextMenusEnabled) {
 			const rpc_list = await storage.get('rpc_list', defaultRPC)
 			for (const rpc of rpc_list) {
-				addContextMenu(rpc.url, strExport + rpc.name)
+				addContextMenu(rpc.url + '@@@@@' + randomStr(), strExport + rpc.name)
 			}
 		}
 		if (await storage.get('captureMagnet') && tab.url.startsWith('http')) {
@@ -268,7 +271,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 	const uri = decodeURIComponent(info.linkUrl)
 	const referrer = info.frameUrl || info.pageUrl
 	if (IS_FIREFOX) {
-		aria2Send(uri, info.menuItemId, {
+		aria2Send(uri, info.menuItemId.split('@@@@@')[0], {
 			url: uri,
 			referrer,
 			filename: ''
